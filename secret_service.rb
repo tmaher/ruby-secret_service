@@ -1,6 +1,6 @@
 require 'dbus'
 
-class SecretStorage
+class SecretService
   SECRETS = 'org.freedesktop.secrets'
   SS_PREFIX = 'org.freedesktop.Secret.'
   SS_PATH = '/org/freedesktop/secrets'
@@ -42,7 +42,7 @@ class SecretStorage
 
 end
 
-class SecretStorage
+class SecretService
   class Collection
 
     attr_accessor :collection, :session
@@ -66,7 +66,7 @@ class SecretStorage
   end
 end
 
-class SecretStorage
+class SecretService
   class Item
 
     attr_accessor :item
