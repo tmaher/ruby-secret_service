@@ -7,7 +7,7 @@ ss = SecretService.new
 secret_path = ss.get_collection.get_unlocked_items[0]
 item = SecretService::Item.new(ss.bus, secret_path)
 
-#puts item.get_secret
+puts item.your_mom
 
 #puts ss.init_session[1]
 

@@ -28,6 +28,7 @@ class SecretService
     @service_obj = @service.object SS_PATH
     @service_obj.introspect
     @service_obj.default_iface = SERVICE_IFACE
+    @session = init_session
     
     @collections = {}
   end
@@ -47,12 +48,20 @@ class SecretService
 
     attr_accessor :collection, :session
     
-    def initialize(bus, name = DEFAULT_COLLECTION)
-      @bus = bus
+    def initialize(ruby_service_obj, name = DEFAULT_COLLECTION)
+      @ruby_service = ruby_service_obj
       @collection_path = "#{COLLECTION_PREFIX}#{name}"
-      @collection = bus.service(SECRETS).object(@collection_path)
+      @collection = @ruby_service.bus.service(SECRETS).object(@collection_path)
       @collection.introspect
       @collection.default_iface = COLLECTION_IFACE
+    end
+
+    def service
+      @ruby_service.service
+    end
+
+    def session
+      @ruby_service.session
     end
 
     def get_unlocked_items(search_pred = {})
@@ -71,16 +80,25 @@ class SecretService
 
     attr_accessor :item
     
-    def initialize(bus, item_path)
-      @bus = bus
+    def initialize(collection, item_path)
+      @collection = collection
       @item = bus.service(SECRETS).object(item_path)
       @item.introspect
       @item.default_iface = ITEM_IFACE
     end
 
-    def get_secret
-      @item.GetSecret(@bus)
+    def session
+      @collection.ruby_service.session
     end
+    
+    def get_secret path
+      @item.GetSecret(session, path)
+    end
+
+    def your_mom
+      "your mom"
+    end
+    
     
   end
 end
