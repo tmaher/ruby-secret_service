@@ -5,9 +5,13 @@ require 'secret_service'
 ss = SecretService.new
 
 item = ss.collection.unlocked_items[0]
-puts "last modified #{item.modified}, locked: #{item.locked?}, label: #{item.label}"
+puts "label: #{item.label}"
+puts "last modified #{item.modified}, locked: #{item.locked?}"
+puts "attributes: #{item.attributes.to_s}"
 
-
+# item.attributes = ["name", "test2"]
+#  {"magic" => "secret_service.rb", "name" => "test"}
+  
 
 #item = SecretService::Item.new(ss.bus, secret_path)
 

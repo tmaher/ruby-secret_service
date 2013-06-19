@@ -86,23 +86,40 @@ class SecretService
     end
 
     def modified
-      Time.at get_property(:modified)[0]
+      Time.at get_property(:modified)
     end
 
     def created
-      Time.at get_property(:created)[0]
+      Time.at get_property(:created)
     end
 
     def locked?
-      get_property(:locked)[0]
+      get_property(:locked)
     end
 
     def label
-      get_property(:label)[0]
+      get_property(:label)
+    end
+
+    def label= new_label
+      set_property(:label, new_label)
+    end
+
+    def attributes
+      get_property(:attributes)
+    end
+
+    # TODO: this keeps throwing type errors
+    def attributes= new_attrs
+      set_property(:attributes, new_attrs)
+    end
+
+    def set_property name, new_val
+      @proxy.Set(IFACE[:item], name.to_s.downcase.capitalize, new_val)
     end
     
     def get_property name
-      @proxy.Get(IFACE[:item], name.to_s.downcase.capitalize)
+      @proxy.Get(IFACE[:item], name.to_s.downcase.capitalize)[0]
     end
       
     def session
