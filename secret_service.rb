@@ -1,6 +1,5 @@
 require 'dbus'
 
-
 class SecretService
   SECRETS = 'org.freedesktop.secrets'
   SS_PREFIX = 'org.freedesktop.Secret.'
@@ -18,7 +17,7 @@ class SecretService
 
   IFACE = {}
   [:service, :item, :collection].each do |x|
-    IFACE[x] = "#{SS_PREFIX}#{x.to_s}"
+    IFACE[x] = "#{SS_PREFIX}#{x.to_s.capitalize}"
   end
     
   attr_accessor :bus
@@ -65,11 +64,11 @@ class SecretService
     end
 
     def unlocked_items(search_pred = {})
-      @proxy.SearchItems(search_pred)[0]
+      @proxy.SearchItems(search_pred)[0].map {|path| Item.new self, path }
     end
 
     def locked_items(search_pref = {})
-      @proxy.SearchItems(search_pred)[1]
+      @proxy.SearchItems(search_pred)[1].map {|path| Item.new self, path }
     end
     
   end
@@ -78,23 +77,55 @@ end
 class SecretService
   class Item
 
-    def initialize(collection, item_path)
+    attr_accessor :path
+    
+    def initialize(collection, path)
       @collection = collection
-      @proxy = collection.service.get_proxy item_path, IFACE[:item]
+      @path = path
+      @proxy = collection.service.get_proxy @path, IFACE[:item]
     end
 
+    def modified
+      Time.at get_property(:modified)[0]
+    end
+
+    def created
+      Time.at get_property(:created)[0]
+    end
+
+    def locked?
+      get_property(:locked)[0]
+    end
+
+    def label
+      get_property(:label)[0]
+    end
+    
+    def get_property name
+      @proxy.Get(IFACE[:item], name.to_s.downcase.capitalize)
+    end
+      
     def session
       @collection.session
     end
     
-    def get_secret path
-      @proxy.GetSecret(session, path)
+    def get_secret
+      secret_decode(@proxy.GetSecret session[1])
     end
 
     def your_mom
       "your mom"
     end
-    
+
+    def secret_decode secret_arr
+      secret_struct = secret_arr[0]
+      s = {}
+      [:session, :params, :bytes, :mime].each do |x|
+        s[x] = secret_struct.shift
+      end
+
+      (s[:bytes].map {|x| x.chr}).join
+    end
     
   end
 end
