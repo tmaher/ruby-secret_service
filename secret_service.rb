@@ -70,6 +70,14 @@ class SecretService
     def locked_items(search_pref = {})
       @proxy.SearchItems(search_pred)[1].map {|path| Item.new self, path }
     end
+
+    def create_item properties, secret, replace=true
+      puts "about to try CreateItem with #{properties}"
+      result = @proxy.CreateItem(properties, secret, replace)
+      new_item_path = result[0]
+      puts "path: #{new_item_path}"
+      Item.new(self, new_item_path)
+    end
     
   end
 end

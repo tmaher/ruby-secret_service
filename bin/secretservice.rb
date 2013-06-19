@@ -23,7 +23,9 @@ ss = SecretService.new
 
 case options[:mode]
 when :set
-  exit 0
+  new_secret = STDIN.read
+  properties = {"name" => options[:key], "magic" => "secretservice.rb"}
+  item = ss.collection.create_item properties, new_secret
 when :get
   item = ss.collection.unlocked_items({"name" => options[:key]})[0]
   puts item.get_secret
