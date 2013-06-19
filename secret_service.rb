@@ -8,10 +8,6 @@ class SecretService
   COLLECTION_PREFIX =  '/org/freedesktop/secrets/aliases/'
   DEFAULT_COLLECTION = "default"
 
-  SERVICE_IFACE    = "#{SS_PREFIX}Service"
-  COLLECTION_IFACE = "#{SS_PREFIX}Collection"
-  ITEM_IFACE       = "#{SS_PREFIX}Item"
-
   ALGO = "plain"
   
   DBUS_UNKNOWN_METHOD  = 'org.freedesktop.DBus.Error.UnknownMethod'
@@ -20,13 +16,18 @@ class SecretService
   DBUS_NO_REPLY        = 'org.freedesktop.DBus.Error.NoReply'
   DBUS_NO_SUCH_OBJECT  = 'org.freedesktop.Secret.Error.NoSuchObject'
 
+  IFACE = {}
+  [:service, :item, :collection].each do |x|
+    IFACE[x] = "#{SS_PREFIX}#{x.to_s}"
+  end
+    
   attr_accessor :bus
   
   def initialize
     @bus = DBus::SessionBus.instance
 
     @proxy_maker = @bus.service SECRETS
-    @proxy = get_proxy SS_PATH, SERVICE_IFACE
+    @proxy = get_proxy SS_PATH, IFACE[:service]
     
     @collections = {}
   end
@@ -56,7 +57,7 @@ class SecretService
       @service = service
       @name = name
       @proxy = @service.get_proxy("#{COLLECTION_PREFIX}#{name}",
-                                  COLLECTION_IFACE)
+                                  IFACE[:collection])
     end
 
     def session
@@ -79,7 +80,7 @@ class SecretService
 
     def initialize(collection, item_path)
       @collection = collection
-      @proxy = collection.service.get_proxy item_path, ITEM_IFACE
+      @proxy = collection.service.get_proxy item_path, IFACE[:item]
     end
 
     def session
