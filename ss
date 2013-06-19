@@ -4,10 +4,10 @@ require 'secret_service'
 
 ss = SecretService.new
 
-secret_path = ss.get_collection.get_unlocked_items[0]
-item = SecretService::Item.new(ss.bus, secret_path)
+puts secret_path = ss.collection.unlocked_items[0]
+#item = SecretService::Item.new(ss.bus, secret_path)
 
-puts item.your_mom
+#puts item.your_mom
 
 #puts ss.init_session[1]
 
