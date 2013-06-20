@@ -73,10 +73,22 @@ class SecretService
 
     def create_item properties, secret, replace=true
       puts "about to try CreateItem with #{properties}"
-      result = @proxy.CreateItem(properties, secret, replace)
+      result = @proxy.CreateItem(properties, secret_encode(secret), replace)
       new_item_path = result[0]
       puts "path: #{new_item_path}"
       Item.new(self, new_item_path)
+    end
+
+    def secret_encode secret_string
+      mime_type = "application/octet-stream"
+
+      if(secret_string.respond_to? "encoding" and
+         secret_string.encoding.to_s != "ASCII-8BIT")
+        secret_string.encode! "UTF-8"
+        #mime_type = "text/plain; charset=utf8"
+      end
+
+      [session[1], [], secret_string.bytes.to_a, mime_type]
     end
     
   end
@@ -135,22 +147,33 @@ class SecretService
     end
     
     def get_secret
-      secret_decode(@proxy.GetSecret session[1])
+      secret_decode(@proxy.GetSecret(session[1]))
     end
 
     def your_mom
       "your mom"
     end
 
+    # http://standards.freedesktop.org/secret-service/ch14.html#type-Secret
     def secret_decode secret_arr
+      puts "arr is #{secret_arr.to_s}"
       secret_struct = secret_arr[0]
       s = {}
       [:session, :params, :bytes, :mime].each do |x|
         s[x] = secret_struct.shift
       end
 
-      (s[:bytes].map {|x| x.chr}).join
+      secret_string = (s[:bytes].map {|x| x.chr}).join
+      if(secret_string.respond_to? "encoding" and
+         s[:mime] != "application/octet-stream")
+        charset = s[:mime].match(/charset=(.+)/)[1]
+        unless charset.nil?
+          charset.upcase!.sub! /\AUTF([\w\d])/, "UTF-#{$1}"
+          secret_string.force_encoding charset
+        end
+      end
+      secret_string
     end
-    
+
   end
 end
