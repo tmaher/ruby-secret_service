@@ -54,10 +54,6 @@ class Item
     secret_decode(@proxy.GetSecret(session[1]))
   end
 
-  def your_mom
-    "your mom"
-  end
-
   # http://standards.freedesktop.org/secret-service/ch14.html#type-Secret
   def secret_decode secret_arr
     puts "arr is #{secret_arr.to_s}"
