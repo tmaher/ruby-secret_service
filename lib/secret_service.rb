@@ -1,5 +1,9 @@
 require 'dbus'
 
+require 'secret_service/collection'
+require 'secret_service/item'
+require 'secret_service/secret'
+
 class SecretService
   SECRETS = 'org.freedesktop.secrets'
   SS_PREFIX = 'org.freedesktop.Secret.'
@@ -20,7 +24,7 @@ class SecretService
     IFACE[x] = "#{SS_PREFIX}#{x.to_s.capitalize}"
   end
     
-  attr_accessor :bus
+  attr_accessor :bus, :proxy
   
   def initialize
     @bus = DBus::SessionBus.instance
@@ -46,4 +50,8 @@ class SecretService
     @collections[name.to_s] ||= Collection.new(self, name)
   end
 
+  def list_collections
+    @proxy.Get(IFACE[:service], 'Collections')
+  end
+  
 end

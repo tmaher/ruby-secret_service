@@ -10,7 +10,7 @@ class Secret
     @session_path = attrs[:session_path]
     @parameters = attrs[:parameters] || []
     @value = attrs[:value]
-    @content_type = attrs[:content_type] || sniff_content_type @value
+    @content_type = attrs[:content_type] || sniff_content_type(@value)
   end
 
   def value
