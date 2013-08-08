@@ -53,5 +53,9 @@ class SecretService
   def list_collections
     @proxy.Get(IFACE[:service], 'Collections')
   end
+
+  def search_items attrs={}
+    @proxy.SearchItems(attrs)
+  end
   
 end
