@@ -26,18 +26,22 @@ class SecretService
   end
     
   attr_accessor :bus, :proxy
+
+  class NoSessionBus < Exception
+  end
   
   def initialize
     begin
       @bus = DBus::SessionBus.instance
-    rescue NoMethodError => e
-      raise DBus::Connection::NameRequestError
-    end
 
-    @proxy_maker = @bus.service SECRETS
-    @proxy = get_proxy SS_PATH, IFACE[:service]
-    
-    @collections = {}
+      @proxy_maker = @bus.service SECRETS
+      @proxy = get_proxy SS_PATH, IFACE[:service]
+      @collections = {}
+
+      @collection_paths = self.list_collections
+    rescue
+      raise NoSessionBus
+    end
   end
 
   def get_proxy path, iface=nil

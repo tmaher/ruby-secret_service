@@ -2,12 +2,12 @@ require 'spec_helper'
 
 describe SecretService do
 
-  it "aborts when there's no env" do
-    session_bus_env = ENV['DBUS_SESSION_BUS_ADDRESS']
-    ENV['DBUS_SESSION_BUS_ADDRESS'] = nil
-    expect {SecretService.new}.to raise_error(DBus::Connection::NameRequestError)
-    ENV['DBUS_SESSION_BUS_ADDRESS'] = session_bus_env
-  end
+  #it "aborts when it can't find dbus" do
+    #state = hide_dbus_configs
+    #SecretService.new
+    #expect {SecretService.new}.to raise_error
+    #restore_dbus_configs state
+  #end
   
   it "can create a session" do
     SecretService.new.class.should_not be nil
