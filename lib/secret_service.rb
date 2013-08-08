@@ -3,6 +3,7 @@ require 'dbus'
 require 'secret_service/collection'
 require 'secret_service/item'
 require 'secret_service/secret'
+require 'secret_service/prompt'
 
 class SecretService
   SECRETS = 'org.freedesktop.secrets'
@@ -20,14 +21,18 @@ class SecretService
   DBUS_NO_SUCH_OBJECT  = 'org.freedesktop.Secret.Error.NoSuchObject'
 
   IFACE = {}
-  [:service, :item, :collection].each do |x|
+  [:service, :item, :collection, :prompt].each do |x|
     IFACE[x] = "#{SS_PREFIX}#{x.to_s.capitalize}"
   end
     
   attr_accessor :bus, :proxy
   
   def initialize
-    @bus = DBus::SessionBus.instance
+    begin
+      @bus = DBus::SessionBus.instance
+    rescue NoMethodError => e
+      raise DBus::Connection::NameRequestError
+    end
 
     @proxy_maker = @bus.service SECRETS
     @proxy = get_proxy SS_PATH, IFACE[:service]
@@ -56,6 +61,14 @@ class SecretService
 
   def search_items attrs={}
     @proxy.SearchItems(attrs)
+  end
+
+  def unlock objects
+    @proxy.Unlock objects
+  end
+
+  def prompt!(prompt_path)
+    SecretService::Prompt.new(self, prompt_path).prompt!
   end
   
 end

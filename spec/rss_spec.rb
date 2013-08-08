@@ -2,6 +2,13 @@ require 'spec_helper'
 
 describe SecretService do
 
+  it "aborts when there's no env" do
+    session_bus_env = ENV['DBUS_SESSION_BUS_ADDRESS']
+    ENV['DBUS_SESSION_BUS_ADDRESS'] = nil
+    expect {SecretService.new}.to raise_error(DBus::Connection::NameRequestError)
+    ENV['DBUS_SESSION_BUS_ADDRESS'] = session_bus_env
+  end
+  
   it "can create a session" do
     SecretService.new.class.should_not be nil
   end
@@ -30,6 +37,20 @@ describe SecretService do
     (locked + unlocked).each do |item|
       item.match(/^\/org\/freedesktop\/secrets\/collection/).nil?.should eq false
     end
+  end
+
+  it "can unlock objects" do
+    ss = SecretService.new
+    item_paths, prompt = ss.unlock(ss.search_items[1])
+  end
+
+  it "can raise a prompt" do
+    ss = SecretService.new
+    item_paths, prompt = ss.unlock(ss.search_items[1])
+    ss.prompt!(prompt)
+    new_items, new_prompt = ss.unlock(ss.search_items[1])
+    new_prompt.should be_nil
+    puts "new_items: #{new_items}"
   end
   
 end
