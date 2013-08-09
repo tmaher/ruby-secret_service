@@ -1,7 +1,7 @@
 Ruby Secret Service
 ===================
 
-Native Ruby bindings for freedesktop.org's Secret Service.  Uses ruby-dbus.
+Native Ruby bindings for [freedesktop.org's Secret Service](http://standards.freedesktop.org/secret-service/).  Uses [ruby-dbus](https://github.com/mvidner/ruby-dbus).
 
 ##Usage
 ```
