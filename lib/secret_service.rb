@@ -55,14 +55,32 @@ class SecretService
     @session ||= @proxy.OpenSession(ALGO, "")
   end
   
-  def collection(name=DEFAULT_COLLECTION)
-    @collections[name.to_s] ||= Collection.new(self, name)
+  def collection(name=DEFAULT_COLLECTION, path=nil)
+    @collections[name.to_s] ||= Collection.new(self, name, path)
   end
 
   def list_collections
     @proxy.Get(IFACE[:service], 'Collections')
   end
 
+  def create_collection name, properties=nil
+    properties ||= {"#{SS_PREFIX}Collection.Label" => name}
+
+    coll, prompt_path = @proxy.CreateCollection properties, ""
+    prompt!(prompt_path) if prompt_path != "/"
+    collection(name, coll)
+  end
+
+  
+  def set_alias name, collection
+    @proxy.SetAlias name, (collection.class == String ? collection : collection.path)
+  end
+
+  def read_alias name
+    path = @proxy.ReadAlias name
+    collection(name, path)
+  end
+  
   def search_items attrs={}
     @proxy.SearchItems(attrs)
   end

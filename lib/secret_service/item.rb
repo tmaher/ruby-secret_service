@@ -21,6 +21,15 @@ class Item
     get_property(:locked)
   end
 
+  def lock!
+    locked, prompt_path = @collection.service.proxy.Lock [@path]
+    return true if prompt_path == "/" and locked.include? @path
+
+    # otherwise we have to handle the prompt
+    @collection.service.prompt!(prompt_path)
+    get_property(:locked)
+  end
+  
   def label
     get_property(:label)
   end

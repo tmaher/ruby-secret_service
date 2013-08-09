@@ -1,8 +1,14 @@
 class SecretService
 class Prompt
 
+  attr_accessor :path
+
+  class NoPromptRequired < Exception ; end
+  
   def initialize service, object_path
+    raise NoPromptRequired if object_path == "/"
     @service = service
+    @path = object_path
     @proxy = service.get_proxy object_path, SecretService::IFACE[:prompt]
   end
 

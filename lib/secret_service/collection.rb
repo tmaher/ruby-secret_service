@@ -1,14 +1,44 @@
 class SecretService
 class Collection
-  attr_accessor :service, :name
+  attr_accessor :service, :name, :path
   
-  def initialize(service, name = DEFAULT_COLLECTION)
+  def initialize(service, name = DEFAULT_COLLECTION, path=nil)
     @service = service
     @name = name
-    @proxy = @service.get_proxy("#{COLLECTION_PREFIX}#{name}",
-                                IFACE[:collection])
+    @path = path || "#{COLLECTION_PREFIX}#{name}"
+    @proxy = @service.get_proxy(@path, IFACE[:collection])
   end
 
+  def lock!
+    locked_objs, prompt_path = @service.proxy.Lock [@path]
+    return true if prompt_path == "/" and locked_objs.include?(@path)
+
+    # need to do the prompt dance
+    @service.prompt!(prompt_path)
+    locked?
+  end
+  
+  def unlock!
+    unlocked_objs, prompt_path = @service.proxy.Unlock [@path]
+    return true if prompt_path == "/" and unlocked_objs.include?(@path)
+
+    #nuts, stupid prompt
+    @service.prompt!(prompt_path)
+    ! locked?
+  end
+
+  def locked?
+    get_property(:locked)
+  end
+
+  def set_property name, new_val
+    @proxy.Set(IFACE[:item], name.to_s.downcase.capitalize, new_val)
+  end
+
+  def get_property name
+    @proxy.Get(IFACE[:collection], name.to_s.downcase.capitalize)[0]
+  end
+  
   def session
     @service.session
   end
@@ -21,14 +51,6 @@ class Collection
     @proxy.SearchItems(search_pred)[1].map {|path| Item.new self, path }
   end
 
-  def old_create_item properties, secret, replace=true
-    puts "about to try CreateItem with #{properties}"
-    result = @proxy.CreateItem(properties, secret_encode(secret), replace)
-    new_item_path = result[0]
-    puts "path: #{new_item_path}"
-    Item.new(self, new_item_path)
-  end
-
   def create_item name, secret, properties=nil, replace=true
     if properties.nil? 
       # ruby-dbus's type inference system doesn't handle recursion for
@@ -38,13 +60,17 @@ class Collection
       attrs = ["a{ss}", {"name" => name.to_s }]
 
       properties =
-        {"org.freedesktop.Secret.Item.Label" => name.to_s,
-        "org.freedesktop.Secret.Item.Attributes" => attrs
+        {"#{SS_PREFIX}Item.Label" => name.to_s,
+        "#{SS_PREFIX}Item.Attributes" => attrs
       }
     end
     result = @proxy.CreateItem(properties, secret_encode(secret), replace)
     new_item_path = result[0]
     Item.new(self, new_item_path)
+  end
+
+  def get_secret name
+    (unlocked_items({"name" => name})[0]).get_secret
   end
   
   def secret_encode secret_string
