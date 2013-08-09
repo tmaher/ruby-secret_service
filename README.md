@@ -3,7 +3,7 @@ Ruby Secret Service
 
 Native Ruby bindings for freedesktop.org's Secret Service.  Uses ruby-dbus.
 
-##Basic Usage
+##Usage
 ```
 require "secretservice"
 
