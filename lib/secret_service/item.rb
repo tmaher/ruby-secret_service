@@ -65,7 +65,6 @@ class Item
 
   # http://standards.freedesktop.org/secret-service/ch14.html#type-Secret
   def secret_decode secret_arr
-    puts "arr is #{secret_arr.to_s}"
     secret_struct = secret_arr[0]
     s = {}
     [:session, :params, :bytes, :mime].each do |x|

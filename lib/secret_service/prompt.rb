@@ -16,7 +16,6 @@ class Prompt
     loop = DBus::Main.new
     loop << @service.bus
     @proxy.on_signal("Completed") do |dismissed, result|
-      puts "prompt call complete: dismissed #{dismissed}, result #{result}"
       loop.quit
     end
     @proxy.Prompt ""
