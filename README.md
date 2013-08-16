@@ -5,7 +5,7 @@ Native Ruby bindings for [freedesktop.org's Secret Service](http://standards.fre
 
 ##Usage
 ```
-require "secretservice"
+require "secret_service"
 
 ss = SecretService.new
 
