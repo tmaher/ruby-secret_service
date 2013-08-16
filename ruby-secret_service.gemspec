@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email = "tmaher@pw0n.me"
   s.license = "Apache 2.0"
   s.files = `git ls-files`.split("\n")
-  s.require_path = ["lib"]
+  s.require_path = "lib"
   s.homepage = "https://github.com/tmaher/ruby-secret_service"
   s.add_development_dependency "woof_util"
   s.add_development_dependency "rake"
