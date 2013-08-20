@@ -76,6 +76,12 @@ class Collection
   def get_secret name
     get_item(name).get_secret
   end
+
+  def all_items
+    @proxy.Get(IFACE[:collection], Items).map { |item_path|
+      SecretService::Item.new(self, item_path)
+    }
+  end
   
   def secret_encode secret_string
     mime_type = "application/octet-stream"
