@@ -63,6 +63,12 @@ class Item
     secret_decode(@proxy.GetSecret(session[1]))
   end
 
+  def delete
+    prompt = @proxy.Delete
+    return true if prompt_path == "/"
+    @collection.service.prompt!(prompt_path)
+  end
+
   # http://standards.freedesktop.org/secret-service/ch14.html#type-Secret
   def secret_decode secret_arr
     secret_struct = secret_arr[0]
