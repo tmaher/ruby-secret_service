@@ -63,8 +63,8 @@ class SecretService
     @proxy.Get(IFACE[:service], 'Collections')
   end
 
-  def create_collection name, properties=nil
-    properties ||= {"#{SS_PREFIX}Collection.Label" => name}
+  def create_collection name, properties={}
+    properties["#{SS_PREFIX}Collection.Label"] = name
 
     coll, prompt_path = @proxy.CreateCollection properties, ""
     prompt!(prompt_path) if prompt_path != "/"
