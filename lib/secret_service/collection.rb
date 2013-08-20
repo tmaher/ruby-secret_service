@@ -69,8 +69,12 @@ class Collection
     Item.new(self, new_item_path)
   end
 
+  def get_item name
+    (unlocked_items({"name" => name})[0])
+  end
+
   def get_secret name
-    (unlocked_items({"name" => name})[0]).get_secret
+    get_item(name).get_secret
   end
   
   def secret_encode secret_string
