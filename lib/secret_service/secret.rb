@@ -48,7 +48,7 @@ class Secret
   def sniff_content_type str
     if (str.nil? or
         (not str.respond_to? :encoding ) or
-        (str.encoding.to_s == "ASCII-8BIT"))
+        (str.encoding == Encoding::BINARY))
       "application/octet-stream"
     else
       "text/plain; charset=#{str.encoding}"
